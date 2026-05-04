@@ -4,4 +4,4 @@ numpy==1.26.4
 Pillow
 gunicorn
 face-recognition-models
-face-recognition
+https://github.com/thetoby9944/face_recognition/archive/refs/heads/master.zip
