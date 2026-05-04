@@ -1,0 +1,99 @@
+/* Global Mesh Background */
+.mesh-bg {
+    background-color: #020617;
+    background-image: radial-gradient(at 0% 0%, hsla(245, 58%, 12%, 1) 0, transparent 50%), 
+                      radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                      radial-gradient(at 100% 0%, hsla(199, 89%, 20%, 1) 0, transparent 50%);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-modal {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+body.vote-page { background-color: #f1f5f9; }
+
+.card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    border-color: #94a3b8;
+}
+
+.status-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+/* Live Video Feed Styling */
+.video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror effect */
+    border-radius: 0.75rem;
+}
+
+.scan-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 2px solid #3b82f6;
+    background: #0f172a;
+    transition: border-color 0.4s ease;
+}
+
+.scan-container.success { border-color: #10b981; }
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: #60a5fa;
+    box-shadow: 0 0 20px 5px rgba(96, 165, 250, 0.6);
+    animation: scan 1.5s infinite linear alternate;
+    z-index: 10;
+}
+.scan-container.success .scan-line { display: none; }
+
+@keyframes scan {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+body.modal-open { overflow: hidden; }
+
+/* === NEW: PRINT STYLES FOR RECEIPT === */
+@media print {
+    body * {
+        visibility: hidden; /* Hide everything by default */
+    }
+    #receipt-card, #receipt-card * {
+        visibility: visible; /* Show only the receipt */
+    }
+    #receipt-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+        background: white;
+        color: black;
+    }
+    .no-print {
+        display: none !important; /* Hide buttons when printing */
+    }
+}

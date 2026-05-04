@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Ballot | Secure E-Voting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation -->
+    <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <span class="text-xl font-bold text-white tracking-tight">Official Ballot</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <span class="flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
+                        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                        SECURE CONNECTION
+                    </span>
+                    <a href="{{ url_for('dashboard') }}" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">Return to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-10 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        
+        <!-- Header Section -->
+        <div class="mb-10 max-w-3xl">
+            <h1 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Select Your Candidate</h1>
+            <p class="text-slate-500 text-lg">Please review carefully. Your vote will be analyzed by the <strong class="text-slate-700">Machine Learning Anomaly Engine</strong>. If valid, it will be cryptographically hashed and permanently appended to the <strong class="text-slate-700">Immutable Blockchain</strong>. This action cannot be undone.</p>
+        </div>
+
+        <!-- Flash Messages (If ML Engine rejects vote) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-8 space-y-3 max-w-3xl">
+                {% for category, message in messages %}
+                    <div class="p-4 rounded-xl flex items-start gap-3 border shadow-sm {% if category == 'error' %}bg-rose-50 border-rose-200 text-rose-800{% else %}bg-emerald-50 border-emerald-200 text-emerald-800{% endif %}">
+                        <p class="text-sm font-semibold">{{ message }}</p>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Candidates Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Candidate 1: BJP -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div class="flex items-center gap-4 mb-5">
+                    <div class="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-xl border border-orange-100 shrink-0">01</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 leading-tight">Bharatiya Janata Party</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">BJP</p>
+                    </div>
+                </div>
+                <div class="h-32 w-full flex items-center justify-center mb-5 bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                    <img src="{{ url_for('static', filename='images/bjp.jpg') }}" alt="BJP Logo" class="max-h-full max-w-full object-contain drop-shadow-sm">
+                </div>
+                <p class="text-slate-600 text-sm mb-8 flex-grow leading-relaxed">Focusing on robust national infrastructure, economic growth, digital expansion, and cultural heritage initiatives.</p>
+                <form action="{{ url_for('vote') }}" method="POST" class="mt-auto">
+                    <input type="hidden" name="candidate" value="BJP">
+                    <button type="submit" onclick="return confirm('Are you sure you want to cast your official vote for BJP?')" class="w-full bg-slate-900 hover:bg-orange-500 text-white font-bold py-3.5 px-4 rounded-xl transition-colors duration-200 shadow-md">Confirm Selection</button>
+                </form>
+            </div>
+
+            <!-- Candidate 2: INC -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div class="flex items-center gap-4 mb-5">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-50 flex items-center justify-center text-cyan-600 font-bold text-xl border border-cyan-100 shrink-0">02</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 leading-tight">Indian National Congress</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">INC</p>
+                    </div>
+                </div>
+                <div class="h-32 w-full flex items-center justify-center mb-5 bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                    <img src="{{ url_for('static', filename='images/inc.jpg') }}" alt="INC Logo" class="max-h-full max-w-full object-contain drop-shadow-sm">
+                </div>
+                <p class="text-slate-600 text-sm mb-8 flex-grow leading-relaxed">Advocating for inclusive economic policies, social justice reforms, and comprehensive public welfare programming.</p>
+                <form action="{{ url_for('vote') }}" method="POST" class="mt-auto">
+                    <input type="hidden" name="candidate" value="INC">
+                    <button type="submit" onclick="return confirm('Are you sure you want to cast your official vote for INC?')" class="w-full bg-slate-900 hover:bg-cyan-600 text-white font-bold py-3.5 px-4 rounded-xl transition-colors duration-200 shadow-md">Confirm Selection</button>
+                </form>
+            </div>
+
+            <!-- Candidate 3: AAP -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div class="flex items-center gap-4 mb-5">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-xl border border-emerald-100 shrink-0">03</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 leading-tight">Aam Aadmi Party</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">AAP</p>
+                    </div>
+                </div>
+                <div class="h-32 w-full flex items-center justify-center mb-5 bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                    <img src="{{ url_for('static', filename='images/aap.jpg') }}" alt="AAP Logo" class="max-h-full max-w-full object-contain drop-shadow-sm">
+                </div>
+                <p class="text-slate-600 text-sm mb-8 flex-grow leading-relaxed">Prioritizing universal healthcare access, affordable public utilities, and expansive modernization of public education.</p>
+                <form action="{{ url_for('vote') }}" method="POST" class="mt-auto">
+                    <input type="hidden" name="candidate" value="AAP">
+                    <button type="submit" onclick="return confirm('Are you sure you want to cast your official vote for AAP?')" class="w-full bg-slate-900 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl transition-colors duration-200 shadow-md">Confirm Selection</button>
+                </form>
+            </div>
+
+            <!-- Candidate 4: BSP -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div class="flex items-center gap-4 mb-5">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl border border-indigo-100 shrink-0">04</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 leading-tight">Bahujan Samaj Party</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">BSP</p>
+                    </div>
+                </div>
+                <div class="h-32 w-full flex items-center justify-center mb-5 bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                    <img src="{{ url_for('static', filename='images/bsp.jpg') }}" alt="BSP Logo" class="max-h-full max-w-full object-contain drop-shadow-sm opacity-80">
+                </div>
+                <p class="text-slate-600 text-sm mb-8 flex-grow leading-relaxed">Dedicated to the social and economic empowerment of marginalized communities and ensuring equitable resource distribution.</p>
+                <form action="{{ url_for('vote') }}" method="POST" class="mt-auto">
+                    <input type="hidden" name="candidate" value="BSP">
+                    <button type="submit" onclick="return confirm('Are you sure you want to cast your official vote for BSP?')" class="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl transition-colors duration-200 shadow-md">Confirm Selection</button>
+                </form>
+            </div>
+
+            <!-- Candidate 5: CPI(M) -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div class="flex items-center gap-4 mb-5">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600 font-bold text-xl border border-rose-100 shrink-0">05</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 leading-tight">Communist Party of India (M)</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">CPI(M)</p>
+                    </div>
+                </div>
+                <div class="h-32 w-full flex items-center justify-center mb-5 bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                    <img src="{{ url_for('static', filename='images/cpi.jpg') }}" alt="CPI(M) Logo" class="max-h-full max-w-full object-contain drop-shadow-sm">
+                </div>
+                <p class="text-slate-600 text-sm mb-8 flex-grow leading-relaxed">Striving for robust workers' rights, agricultural reforms, secularism, and anti-privatization economic policies.</p>
+                <form action="{{ url_for('vote') }}" method="POST" class="mt-auto">
+                    <input type="hidden" name="candidate" value="CPI(M)">
+                    <button type="submit" onclick="return confirm('Are you sure you want to cast your official vote for CPI(M)?')" class="w-full bg-slate-900 hover:bg-rose-600 text-white font-bold py-3.5 px-4 rounded-xl transition-colors duration-200 shadow-md">Confirm Selection</button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

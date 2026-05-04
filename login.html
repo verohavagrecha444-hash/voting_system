@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized Voting | Secure Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Exact dark background color from your UI */
+        body { background-color: #151d2f; }
+        
+        /* High-Tech Biometric Scanner Line Animation */
+        @keyframes scan {
+            0% { top: -5%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 105%; opacity: 0; }
+        }
+        .scanner-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #3b82f6;
+            box-shadow: 0 0 15px #3b82f6, 0 0 30px #3b82f6;
+            animation: scan 2.5s infinite linear;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body class="text-slate-200 font-sans antialiased min-h-screen flex flex-col justify-center items-center p-4 relative pb-20">
+
+    <div class="w-full max-w-md z-10">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-[#1e293b] rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <!-- Fingerprint Icon -->
+                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-wide mb-2">Decentralized Voting</h1>
+            <p class="text-slate-400 text-sm">Secured by Face ID & ML Fraud Detection</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-xl text-sm font-semibold border shadow-sm {% if category == 'error' %}bg-[#4a2635] border-[#5e3143] text-rose-100{% else %}bg-emerald-900/40 border-emerald-800 text-emerald-100{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- ========================================== -->
+        <!-- MAIN PORTAL (Login & Admin Toggle) -->
+        <!-- ========================================== -->
+        <div id="main-interface">
+            
+            <!-- The Pill-Shaped Toggle -->
+            <div class="flex justify-center mb-8 bg-[#1e293b] p-1.5 rounded-2xl w-max mx-auto shadow-inner border border-slate-800">
+                <button id="btn-voter" onclick="switchTab('voter')" class="px-6 py-2.5 bg-white text-blue-700 font-bold rounded-xl shadow-md transition-all text-sm">Voter Portal</button>
+                <button id="btn-admin" onclick="switchTab('admin')" class="px-6 py-2.5 text-slate-400 font-semibold rounded-xl hover:text-slate-200 transition-all text-sm">Election Commission</button>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VOTER LOGIN (Step 1: ID Entry) -->
+            <!-- ========================================== -->
+            <div id="view-login-details">
+                <form id="loginInitForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">Registered Voter ID</label>
+                        <input type="text" id="login_voter_id" placeholder="e.g. VID-987654" required class="w-full bg-[#111827] border border-slate-700 text-white rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-600 shadow-inner">
+                    </div>
+
+                    <button type="button" onclick="goToLoginCamera()" class="w-full bg-[#3b82f6] hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-xl transition-colors shadow-lg flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Initiate Face Scan
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <button type="button" onclick="startRegistration()" class="text-blue-400 font-semibold hover:text-blue-300 transition-colors">
+                        New Voter? Register Face ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VOTER LOGIN (Step 2: Biometric Camera) -->
+            <!-- ========================================== -->
+            <div id="view-login-camera" class="hidden">
+                <div class="bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-2xl">
+                    <div class="flex items-center mb-6">
+                        <button type="button" onclick="cancelLoginCamera()" class="text-slate-400 hover:text-white mr-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <h3 class="text-lg font-bold text-white">Live Security Verification</h3>
+                    </div>
+
+                    <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-inner mb-6 border border-slate-700">
+                        <!-- Scanner Animation Overlay -->
+                        <div class="scanner-line"></div>
+                        <video id="loginVideoElement" autoplay class="w-full h-full object-cover" style="transform: scaleX(-1);"></video>
+                    </div>
+
+                    <form action="{{ url_for('login') }}" method="POST" id="finalLoginForm">
+                        <!-- Transferred Voter ID and New Camera Data -->
+                        <input type="hidden" name="voter_id" id="final_login_voter_id">
+                        <input type="hidden" name="login_face_data" id="login_face_data">
+                        <canvas id="loginCanvasElement" class="hidden"></canvas>
+
+                        <button type="button" onclick="captureAndLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-colors shadow-lg">
+                            Scan Face & Access Ballot
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- ELECTION COMMISSION VIEW -->
+            <!-- ========================================== -->
+            <div id="view-admin" class="hidden">
+                <form action="{{ url_for('admin_login') }}" method="POST" class="space-y-4 bg-[#111827] p-6 rounded-2xl border border-slate-800 shadow-2xl">
+                    <h3 class="text-lg font-bold text-white mb-4 text-center">Commission Access</h3>
+                    <div>
+                        <input type="text" name="admin_id" required class="w-full bg-[#1e293b] border border-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500 text-sm" placeholder="Commission ID">
+                    </div>
+                    <div>
+                        <input type="password" name="admin_pass" required class="w-full bg-[#1e293b] border border-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500 text-sm" placeholder="Master Password">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg mt-2">
+                        Initialize Secure Connection
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- REGISTRATION INTERFACE -->
+        <!-- ========================================== -->
+        <div id="registration-interface" class="hidden">
+            
+            <!-- REGISTRATION STEP 1: Details -->
+            <div id="view-register-details">
+                <div class="bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-white">Voter Details (Step 1/2)</h3>
+                        <button type="button" onclick="cancelRegistration()" class="text-slate-500 hover:text-rose-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <form action="{{ url_for('register') }}" method="POST" id="registrationForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Full Name</label>
+                            <input type="text" id="reg_name" name="reg_name" class="w-full bg-[#1e293b] border border-slate-700 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Date of Birth</label>
+                            <input type="date" id="reg_dob" name="reg_dob" class="w-full bg-[#1e293b] border border-slate-700 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 [color-scheme:dark]">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Gender</label>
+                            <select id="reg_gender" name="reg_gender" class="w-full bg-[#1e293b] border border-slate-700 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500">
+                                <option value="" disabled selected>Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Create Voter ID</label>
+                            <input type="text" id="reg_voter_id" name="reg_voter_id" class="w-full bg-[#1e293b] border border-slate-700 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500" placeholder="e.g. VID-12345">
+                        </div>
+                        
+                        <button type="button" onclick="goToRegisterCamera()" class="w-full bg-[#3b82f6] hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl transition-colors shadow-lg mt-4">
+                            Proceed to Face Capture &rarr;
+                        </button>
+                </div>
+            </div>
+
+            <!-- REGISTRATION STEP 2: Camera -->
+            <div id="view-register-camera" class="hidden">
+                <div class="bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-2xl">
+                    <div class="flex items-center mb-6">
+                        <button type="button" onclick="backToRegisterDetails()" class="text-slate-400 hover:text-white mr-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <h3 class="text-lg font-bold text-white">Biometric Scan (Step 2/2)</h3>
+                    </div>
+
+                    <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-inner mb-6 border border-slate-700">
+                        <!-- Scanner Animation Overlay -->
+                        <div class="scanner-line"></div>
+                        <video id="regVideoElement" autoplay class="w-full h-full object-cover" style="transform: scaleX(-1);"></video>
+                    </div>
+                    
+                    <!-- Hidden inputs for Face Data -->
+                    <input type="hidden" name="face_image_data" id="reg_face_image_data">
+                    <canvas id="regCanvasElement" class="hidden"></canvas>
+
+                    <button type="button" onclick="captureAndRegister()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-colors shadow-lg">
+                        Capture Face & Finalize Registration
+                    </button>
+                    
+                    </form> <!-- Closes the registration form started in Step 1 -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Status Indicators -->
+    <div class="fixed bottom-6 w-full max-w-md flex justify-between items-center px-6 text-xs font-semibold z-0">
+        <div class="flex items-center gap-2 text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            ML Node: Active
+        </div>
+        <div class="flex items-center gap-2 text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            Blockchain: Synced
+        </div>
+    </div>
+
+    <script>
+        let cameraStream = null;
+
+        // 1. Pill Toggle Logic
+        function switchTab(tab) {
+            const viewLoginDetails = document.getElementById('view-login-details');
+            const viewLoginCamera = document.getElementById('view-login-camera');
+            const viewAdmin = document.getElementById('view-admin');
+            const btnVoter = document.getElementById('btn-voter');
+            const btnAdmin = document.getElementById('btn-admin');
+
+            if (tab === 'voter') {
+                viewLoginDetails.classList.remove('hidden');
+                viewLoginCamera.classList.add('hidden'); // Hide camera if switching back
+                viewAdmin.classList.add('hidden');
+                
+                btnVoter.className = "px-6 py-2.5 bg-white text-blue-700 font-bold rounded-xl shadow-md transition-all text-sm";
+                btnAdmin.className = "px-6 py-2.5 text-slate-400 font-semibold rounded-xl hover:text-slate-200 transition-all text-sm";
+            } else {
+                viewLoginDetails.classList.add('hidden');
+                viewLoginCamera.classList.add('hidden');
+                viewAdmin.classList.remove('hidden');
+                
+                btnAdmin.className = "px-6 py-2.5 bg-white text-blue-700 font-bold rounded-xl shadow-md transition-all text-sm";
+                btnVoter.className = "px-6 py-2.5 text-slate-400 font-semibold rounded-xl hover:text-slate-200 transition-all text-sm";
+            }
+        }
+
+        // =====================================
+        // CAMERA UTILITIES
+        // =====================================
+        function startCamera(videoElementId) {
+            const video = document.getElementById(videoElementId);
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function (stream) {
+                        cameraStream = stream;
+                        video.srcObject = stream;
+                    })
+                    .catch(function (error) {
+                        alert("Camera access is required for biometric scanning.");
+                    });
+            }
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+        }
+
+        // =====================================
+        // LOGIN FLOW
+        // =====================================
+        function goToLoginCamera() {
+            const vid = document.getElementById('login_voter_id').value;
+            if(!vid) {
+                alert("Please enter your Voter ID first.");
+                return;
+            }
+            
+            // Transfer ID to the hidden final form
+            document.getElementById('final_login_voter_id').value = vid;
+            
+            document.getElementById('view-login-details').classList.add('hidden');
+            document.getElementById('view-login-camera').classList.remove('hidden');
+            startCamera('loginVideoElement');
+        }
+
+        function cancelLoginCamera() {
+            stopCamera();
+            document.getElementById('view-login-camera').classList.add('hidden');
+            document.getElementById('view-login-details').classList.remove('hidden');
+        }
+
+        function captureAndLogin() {
+            const video = document.getElementById('loginVideoElement');
+            const canvas = document.getElementById('loginCanvasElement');
+            const faceDataInput = document.getElementById('login_face_data');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            faceDataInput.value = canvas.toDataURL('image/jpeg');
+            document.getElementById('finalLoginForm').submit();
+        }
+
+        // =====================================
+        // REGISTRATION FLOW
+        // =====================================
+        function startRegistration() {
+            document.getElementById('main-interface').classList.add('hidden');
+            document.getElementById('registration-interface').classList.remove('hidden');
+        }
+
+        function cancelRegistration() {
+            document.getElementById('registration-interface').classList.add('hidden');
+            document.getElementById('main-interface').classList.remove('hidden');
+        }
+
+        function goToRegisterCamera() {
+            const name = document.getElementById('reg_name').value;
+            const dob = document.getElementById('reg_dob').value;
+            const vid = document.getElementById('reg_voter_id').value;
+
+            if(!name || !dob || !vid) {
+                alert("Please complete all details before capturing your face.");
+                return;
+            }
+
+            document.getElementById('view-register-details').classList.add('hidden');
+            document.getElementById('view-register-camera').classList.remove('hidden');
+            startCamera('regVideoElement');
+        }
+
+        function backToRegisterDetails() {
+            stopCamera();
+            document.getElementById('view-register-camera').classList.add('hidden');
+            document.getElementById('view-register-details').classList.remove('hidden');
+        }
+
+        function captureAndRegister() {
+            const video = document.getElementById('regVideoElement');
+            const canvas = document.getElementById('regCanvasElement');
+            const faceDataInput = document.getElementById('reg_face_image_data');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            faceDataInput.value = canvas.toDataURL('image/jpeg');
+            document.getElementById('registrationForm').submit();
+        }
+    </script>
+</body>
+</html>
